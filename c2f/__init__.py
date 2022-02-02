@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask, request, jsonify
-from api.foobar import explainer, recording_loop, schedule_playback_explainer, end_call
+from c2f.fourty_six_elks import explainer, recording_loop, schedule_playback_explainer, end_call
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
