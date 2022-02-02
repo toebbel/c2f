@@ -63,4 +63,8 @@ def create_app(test_config=None):
         wav_url = data['wav']
         print(f"call {call_id} completed @ {completed}. Sound file: ${wav_url}")
         return "ok"
+
+
+    from . import db
+    db.init_app(app)
     return app
