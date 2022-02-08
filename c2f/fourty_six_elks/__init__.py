@@ -18,10 +18,10 @@ def recording_loop(counter):
         start_recording = {'recordcall': url_for('webhooks.incoming_recording_complete', _external=True)}
     return {
         'ivr': sound_file('silence'),
-        'digits': 1,   # expect one key press
-        'timeout': 30, # seconds
-        'repeat': 10,  # x 10 attempts
-        'next': url_for('keep_recording', _external=True),
+        'digits': 1,    # expect one key press
+        'timeout': 30,  # seconds
+        'repeat': 10,   # x 10 attempts
+        'next': url_for('webhooks.keep_recording', _external=True),
     } | start_recording
 
 def schedule_playback_explainer():

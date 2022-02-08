@@ -9,7 +9,7 @@
 --    'recorded-call-1',
 --    '+123456789',
 --    datetime('2021-12-31 23:59:00+0000'),
---    'recording_consented',
+--    'record_consent',
 --    ''
 --)
 --INSERT INTO call_events(
