@@ -1,0 +1,35 @@
+--INSERT INTO call_events(
+--    'recorded-call-1',
+--    '+123456789',
+--    datetime('2021-12-31 23:59:00+0000'),
+--    'call_started',
+--    ''
+--)
+--INSERT INTO call_events(
+--    'recorded-call-1',
+--    '+123456789',
+--    datetime('2021-12-31 23:59:00+0000'),
+--    'recording_consented',
+--    ''
+--)
+--INSERT INTO call_events(
+--    'recorded-call-1',
+--    '+123456789',
+--    datetime('2021-12-31 23:59:00+0000'),
+--    'scheduled_call',
+--    '{"date": "2022-12-31 23:59:59+00"}'
+--)
+--INSERT INTO call_events(
+--    'recorded-call-1',
+--    '+123456789',
+--    datetime('2021-12-31 23:59:00+0000'),
+--    'recording_stored',
+--    '{"blob_key": "bucket/calls/2021/12/31/recorded-call-1.mp3"}'
+--)
+--INSERT INTO recordings(
+--    'recorded-call-1',
+--    '+123456789',
+--    datetime('2021-12-31 23:59:59+0000'),
+--    datetime('2022-12-13 23:59:59+0000'),
+--    'bucket/calls/2021/12/31/recorded-call-1.mp3'
+--)

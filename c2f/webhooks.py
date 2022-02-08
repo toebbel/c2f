@@ -3,15 +3,22 @@ from flask import (
 )
 from c2f.fourty_six_elks import (explainer, recording_loop, schedule_playback_explainer, end_call)
 
-# from c2f.db import get_db
+from c2f.db import get_db
 
 bp = Blueprint('webhooks', __name__, url_prefix='/calls/incoming')
 
 
 @bp.route('/initiate', methods=['POST'])
 def initiate_incoming_call():
-    data = request.form
-    print(f"initiate call {data}")
+    caller_number = request.form['from']
+    call_id = request.form['callid']
+    if call_id is None or caller_number is None:
+        return "invalid request", 400
+    db = get_db()
+    statement = "INSERT INTO call_events (call_id, owner_number, event_type) VALUES (?, ?,'call_started')"
+    db.execute(statement, (call_id, caller_number))
+    db.commit()
+    print(f"[{call_id}] call initiated")
     return jsonify(explainer())
 
 
