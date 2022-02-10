@@ -30,7 +30,30 @@ def schedule_playback_explainer():
                 'next': url_for('webhooks.hang_up', _external=True)
             }
 
+
 def end_call():
-    {
+    return {
         'hangup': 'busy'
+    }
+
+def initiate_call(from_number, to_number):
+    return {
+        'timeout': 40,
+        'from': from_number,
+        'to': to_number,
+        'voice_start': url_for('webhooks_outgoing.greeting', _external=True),
+        'whenhangup': url_for('webhooks_outgoing.hung_up', _external=True)
+    }
+
+def play_greeting():
+    return {
+        'timeout': 40,
+        'play': sound_file('callback-greeting'),
+        'next': url_for('webhooks_outgoing.play_recording', _external=True)
+    }
+
+def playback(recording_id):
+    return {
+        'next': url_for('webhooks_outgoing.hang_up', _external=True),
+        'play': sound_file('recordings/' + recording_id)
     }
