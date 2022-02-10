@@ -2,7 +2,9 @@ import os
 
 from flask import Flask
 from . import webhooks
+from . import webhooks_outgoing
 from . import db
+from . import cli
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True, host_matching=False)
@@ -25,6 +27,8 @@ def create_app(test_config=None):
         pass
 
     db.init_app(app)
+    cli.init_app(app)
     app.register_blueprint(webhooks.bp)
+    app.register_blueprint(webhooks_outgoing.bp)
 
     return app
