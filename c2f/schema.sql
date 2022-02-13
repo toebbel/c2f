@@ -14,5 +14,8 @@ CREATE TABLE recordings(
     owner_number STRING NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     storage_blob_id STRING NOT NULL,
-    scheduled_for TIMESTAMP -- null as long as customer has not scheduled it
+    scheduled_for TIMESTAMP, -- null as long as customer has not scheduled it
+    delivered BOOLEAN DEFAULT FALSE,
+    failed_permanently BOOLEAN DEFAULT FALSE,
+    UNIQUE (call_id)
 );

@@ -1,9 +1,9 @@
 from flask import (
     Blueprint, request, jsonify
 )
-from c2f.fourty_six_elks import (explainer, recording_loop, schedule_playback_explainer, end_call)
 
-from c2f.db import get_db
+from c2f.call_data_storage import add_initial_call_event, add_call_recording_consent, complete_call
+from c2f.fourty_six_elks import (explainer, recording_loop, schedule_playback_explainer, end_call)
 
 bp = Blueprint('webhooks', __name__, url_prefix='/calls/incoming')
 
@@ -14,11 +14,7 @@ def initiate_incoming_call():
     call_id = request.form['callid']
     if call_id is None or caller_number is None:
         return "invalid request", 400
-    # TODO move the database actions to the webhook that receives the cording. There we should fetch the call legs from 46elks to verify that the webhooks are authentic
-    db = get_db()
-    statement = "INSERT INTO call_events (call_id, owner_number, event_type) VALUES (?, ?,'call_started')"
-    db.execute(statement, (call_id, caller_number))
-    db.commit()
+    add_initial_call_event(call_id, caller_number)
     print(f"[{call_id}] call initiated")
     return jsonify(explainer())
 
@@ -38,8 +34,7 @@ def keep_recording():
     loop_counter = request.args.get('loopCount', default=1, type=int)
     data = request.form
     call_id = data['callid']
-    caller_number = data['from']
-    if call_id is None or caller_number is None:  # can this be put into some middleware? we always need callid in webhook calls
+    if call_id is None :  # can this be put into some middleware? we always need callid in webhook calls
         return "invalid request", 400
 
     consent = False
@@ -48,11 +43,7 @@ def keep_recording():
 
     print(f"[{call_id}] IVR consent result: {consent}, loop count {loop_counter}")
     if consent:
-        # TODO move the database actions to the webhook that receives the cording. There we should fetch the call legs from 46elks to verify that the webhooks are authentic
-        db = get_db()
-        statement = "INSERT INTO call_events (call_id, owner_number, event_type) VALUES (?, ?,'record_consent')"
-        db.execute(statement, (call_id, caller_number))
-        db.commit()
+        add_call_recording_consent(call_id)
         return jsonify(schedule_playback_explainer())
     loop_counter += 1
     return jsonify(recording_loop(loop_counter))
@@ -72,8 +63,10 @@ def incoming_recording_complete():
     print(f"complete. {data}")
     call_id = data['callid']
     completed = data['created']
+    wav_url = data['wav']
     # TODO download, convert to mp3 and store the file
     # TODO cut the wav file so that intro and outro are not included
+    complete_call(call_id, wav_url)
     print(f"call {call_id} completed @ {completed}. Payload: ${completed}")
     return "ok"
 
