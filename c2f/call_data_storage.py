@@ -84,10 +84,10 @@ def schedule_callback(call_id, scheduled_date):
 
 def get_pending_callbacks(now=datetime.datetime.now(timezone.utc)):
     """returns a list of callbacks that are scheduled now"""
-    statement = "SELECT call_id, owner_number from recordings " \
-                "WHERE scheduled_for < :now AND delivered = false"
+    statement = "SELECT call_id, owner_number FROM recordings " \
+                "WHERE DATE(scheduled_for) < :now AND delivered = false"
     db = get_db()
-    result = db.execute(statement, {'now': now}).fetchall()
+    result = db.execute(statement, {'now': str(now)}).fetchall()
     pending_callbacks = []
     for row in [dict(r) for r in result]:
         number = row['owner_number'][len(prefix):]

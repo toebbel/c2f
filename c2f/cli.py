@@ -15,8 +15,8 @@ def dispatch_scheduled_calls(dry_run):
         if (dry_run):
             click.echo(f"would place call {pending}")
         else:
-            # elk46client.initiate_outgoing_call(pending.)
-            pass
+            click.echo(f"dispatching call {pending}")
+            elk46client.initiate_outgoing_call(pending['owner_number'], pending['call_id'])
 
 @click.command('dispatch-manual-call')
 @click.argument('call_id')
