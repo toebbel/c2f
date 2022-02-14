@@ -10,6 +10,7 @@ EVENT_CALL_COMPLETED = 'incoming_call_completed'
 EVENT_RECORDING_DELIVERED = 'outgoing_call_succeeded'
 EVENT_RECORDING_FAILED = 'outgoing_call_attempt_failed'
 EVENT_RECORDING_FAILED_PERMANENTLY = 'outgoing_call_failed_permanently'
+prefix = 'tel:'
 
 def list_call_events(call_id):
     db = get_db()
@@ -87,7 +88,6 @@ def get_pending_callbacks(now=datetime.datetime.now(timezone.utc)):
                 "WHERE scheduled_for < :now AND delivered = false"
     db = get_db()
     result = db.execute(statement, {'now': now}).fetchall()
-    prefix = 'tel:'
     pending_callbacks = []
     for row in [dict(r) for r in result]:
         number = row['owner_number'][len(prefix):]
@@ -137,3 +137,10 @@ def read_recording(call_id):
     statement = "SELECT storage_blob FROM recordings WHERE call_id = ?"
     result = db.execute(statement, (call_id, )).fetchone()
     return result[0]
+
+def get_owning_phone_number(call_id):
+    db = get_db()
+    statement = "SELECT owner_number FROM recordings WHERE call_id = ?"
+    row = db.execute(statement, (call_id, )).fetchone()
+    result = row[0][len(prefix):]
+    return result

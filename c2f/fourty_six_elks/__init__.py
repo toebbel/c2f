@@ -53,24 +53,24 @@ def end_call():
         'hangup': 'busy'
     }
 
-def initiate_call(from_number, to_number):
+def initiate_call(from_number, to_number, recorded_call_id):
     return {
         'timeout': 40,
         'from': from_number,
         'to': to_number,
-        'voice_start': url_for('webhooks_outgoing.greeting', _external=True),
-        'whenhangup': url_for('webhooks_outgoing.hung_up', _external=True)
+        'voice_start': url_for('webhooks_outgoing.greeting', recorded_call_id=recorded_call_id, _external=True),
+        'whenhangup': url_for('webhooks_outgoing.hung_up', recorded_call_id=recorded_call_id, _external=True)
     }
 
-def play_greeting():
+def play_greeting(recorded_call_id):
     return {
         'timeout': 40,
         'play': sound_file('callback-greeting'),
-        'next': url_for('webhooks_outgoing.play_recording', _external=True)
+        'next': url_for('webhooks_outgoing.play_recording', recorded_call_id=recorded_call_id,_external=True)
     }
 
-def playback(recording_id):
+def play_recording_audio(recorded_call_id):
     return {
-        'next': url_for('webhooks_outgoing.hang_up', _external=True),
-        'play': sound_file('recordings/' + recording_id)
+        'next': url_for('webhooks_outgoing.hang_up', recorded_call_id=recorded_call_id, _external=True),
+        'play': url_for('webhooks_outgoing.recorded_audio', recorded_call_id=recorded_call_id, _external=True),
     }

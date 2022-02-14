@@ -116,9 +116,11 @@ def incoming_recording_complete():
     # TODO we could check, how much audio we should actually crop. We do not account for repeated scheduling
     # instructions, waiting on user input, or network delays. But the amount we cut off is the minimum.
 
-    temp_mp3_file = tempfile.TemporaryFile(mode='w+b')
-    convert_and_clip(wav_file, temp_mp3_file, 26 * 1000, 23 * 1000)
-    store_recording(call_id, temp_mp3_file.read())
+
+    with tempfile.TemporaryFile(mode='w+b') as temp_mp3_file:
+        convert_and_clip(wav_file, temp_mp3_file, 0, 10 * 1000)
+        temp_mp3_file.seek(0)
+        store_recording(call_id, temp_mp3_file.read())
 
     print(f"call {call_id} completed @ {completed_at}, duration: ${duration}. Recording stored.")
     return "ok"
