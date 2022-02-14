@@ -1,6 +1,6 @@
 from c2f.call_data_storage import add_initial_call_event, add_call_recording_consent, EVENT_RECORDING_CONSENT, \
     complete_call, EVENT_CALL_COMPLETED, schedule_callback, get_pending_callbacks, callback_succeeded, callback_failed, \
-    store_recording, read_recording
+    store_recording, read_recording, has_call_recording_consent
 from c2f.db import get_db
 from datetime import datetime, timezone
 from datetime import timedelta
@@ -44,6 +44,8 @@ def test_add_call_recording_consent(app):
         # correct owner number
         assert stored_event[0]['owner_number'] == "tel:" + _number
 
+        assert has_call_recording_consent(_call_id)
+
 
 def test_complete_call__event_is_inserted(app):
     with app.app_context():
@@ -66,6 +68,8 @@ def test_schedule_and_get_pending_callbacks(app):
         complete_call(callid2)
         tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
         yesterday = datetime.now(timezone.utc) - timedelta(days=1)
+        add_call_recording_consent(_call_id)
+        add_call_recording_consent(callid2)
         schedule_callback(callid2, tomorrow)
         schedule_callback(_call_id, yesterday)
 
@@ -81,6 +85,7 @@ def test_get_pending_callbacks__does_not_include_delivered_calls(app):
         add_initial_call_event(_call_id, _number)
         complete_call(_call_id)
         yesterday = datetime.now(timezone.utc) - timedelta(days=1)
+        add_call_recording_consent(_call_id)
         schedule_callback(_call_id, yesterday)
 
         pending_list = get_pending_callbacks()
@@ -94,6 +99,7 @@ def test_get_pending_callbacks__does_not_include_delivered_calls(app):
 def test_callback_failed__reschedules_plus_one_day(app):
     with app.app_context():
         add_initial_call_event(_call_id, _number)
+        add_call_recording_consent(_call_id)
         complete_call(_call_id)
         now = datetime.now(timezone.utc)
         first_scheduled_attempt = now - timedelta(hours=25)
@@ -114,6 +120,7 @@ def test_callback_failed__reschedules_plus_one_day(app):
 def test_callback_failed__fails_permanent_after_fourth_attempt(app):
     with app.app_context():
         add_initial_call_event(_call_id, _number)
+        add_call_recording_consent(_call_id)
         complete_call(_call_id)
         callback_failed(_call_id)
         callback_failed(_call_id)
@@ -132,6 +139,7 @@ def test_store_and_read_recording(app):
     out_path = os.path.join(os.path.dirname(__file__), 'test-actual-database-output.mp3')
     with app.app_context(), open(in_path, 'rb') as in_file, open(out_path, 'wb') as out_file:
         add_initial_call_event(_call_id, _number)
+        add_call_recording_consent(_call_id)
         complete_call(_call_id)
 
         store_recording(_call_id, in_file.read())

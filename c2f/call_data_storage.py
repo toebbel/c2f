@@ -46,14 +46,6 @@ def add_call_recording_consent(call_id, now=datetime.datetime.now(timezone.utc))
     """stores the consent of a user to that we can record the call"""
     db = get_db()
     result = _add_call_event(db, call_id, EVENT_RECORDING_CONSENT, now)
-    db.commit()
-    return result
-
-
-def complete_call(call_id, now=datetime.datetime.now(timezone.utc)):
-    """marks the call as completed in the database"""
-    db = get_db()
-    result = _add_call_event(db, call_id, EVENT_CALL_COMPLETED, now)
     statement = "INSERT INTO recordings  (call_id, created_at, owner_number) " \
                 "SELECT :call_id as column, :created_at as column, events.owner_number " \
                 "FROM call_events events WHERE call_id = :call_id AND event_type = :init_event_type"
@@ -66,12 +58,26 @@ def complete_call(call_id, now=datetime.datetime.now(timezone.utc)):
     db.commit()
     return result
 
+def has_call_recording_consent(call_id):
+    db = get_db()
+    statement = "SELECT * FROM call_events WHERE event_type = ? AND call_id = ?"
+    consent_rows = db.execute(statement, (EVENT_RECORDING_CONSENT, call_id)).fetchmany(1)
+    return len(consent_rows) > 0
+
+def complete_call(call_id, now=datetime.datetime.now(timezone.utc)):
+    """marks the call as completed in the database"""
+    db = get_db()
+    result = _add_call_event(db, call_id, EVENT_CALL_COMPLETED, now)
+    db.commit()
+    return result
+
 
 def schedule_callback(call_id, scheduled_date):
     """when we should call back the user and play back the recording"""
     statement = "UPDATE recordings SET scheduled_for = :scheduled_for WHERE call_id = :call_id"
     db = get_db()
     db.execute(statement, {'call_id': call_id, 'scheduled_for': scheduled_date})
+    db.commit()
     return call_id
 
 
