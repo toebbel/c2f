@@ -1,0 +1,31 @@
+https://ttsmp3.com/
+
+## Greeting
+```
+Hi,
+<prosody rate="slow">you are calling the future.</prosody>
+You will have the opportunity to record a message and send it to your future self.
+When you are done recording your message, press <emphasis level="strong">1</emphasis> on your telephone. By pressing 1, you agree that we store your phone number and voice recording until your message has been delivered. If you hang up, without pressing 1, your recording will be discarded.
+<break time="500ms"/>
+Your message is now being recorded.
+```
+
+## Post-Recording Instructions
+```
+Thanks. <break time="100ms"/>
+Your message has been recorded.
+You will now be given four options to schedule the delivery of your message.
+```
+
+## Scheduling Options
+```
+Please select one of the following:
+<break time="200ms"/>
+press 1 - within one hour
+<break time="200ms"/>
+press 2 - within the next 7 days
+<break time="200ms"/>
+press 3 - within the next 30 days
+<break time="200ms"/>
+press 4 - within the next 90 days
+```

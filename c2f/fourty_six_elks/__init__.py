@@ -7,7 +7,7 @@ def sound_file(name):
 
 def explainer():
     return {
-            'play': sound_file("explainer"),
+            'play': sound_file("greeting"),
             'skippable': False,
             'next': url_for('webhooks.start_recording', _external=True),
         }
@@ -26,9 +26,26 @@ def recording_loop(counter):
 
 def schedule_playback_explainer():
     return {
-                'play': sound_file('recording-ended-thanks'),
-                'next': url_for('webhooks.hang_up', _external=True)
+                'play': sound_file('post-recording-instructions'),
+                'next': url_for('webhooks.schedule_options', _external=True)
             }
+
+
+def schedule_playback_menu():
+    return {
+        'ivr': sound_file('scheduling-options'),
+        'digits': 1,
+        'timeout': 5,
+        'repeat': 4,
+        'default': 2,
+        'next': url_for('webhooks.schedule_choice', _external=True),
+    }
+
+def thanks_and_bye():
+    return {
+        'play': sound_file('bye'),
+        'next': url_for('webhooks.hang_up', _external=True),
+    }
 
 
 def end_call():
