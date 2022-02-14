@@ -5,11 +5,11 @@ def test_convert_and_clip():
     convert_and_clip('tests/wav-test-input.wav', 'tests/test-actual-output.mp3', clip_off)
     # MP3s could differ on byte comparison when they were decoded on different machines (of ffmpeg versions)
     # If the test proves to be flaky, it should be removed.
-    assert _do_cmp('tests/test-actual-output.mp3', 'tests/test-expected-output.mp3')
+    assert binary_compare('tests/test-actual-output.mp3', 'tests/test-expected-output.mp3')
 
 
 # taken from here: https://codereview.stackexchange.com/a/171014
-def _do_cmp(f1, f2):
+def binary_compare(f1, f2):
     bufsize = 1 # byte wise comparison
     with open(f1, 'rb') as fp1, open(f2, 'rb') as fp2:
         while True:

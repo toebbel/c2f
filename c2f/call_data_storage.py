@@ -1,5 +1,7 @@
 from datetime import timezone
 import datetime
+from sqlite3 import Binary
+
 from c2f.db import get_db
 
 EVENT_CALL_INITIALIZED = 'incoming_call_initiated'
@@ -118,3 +120,14 @@ def callback_failed(call_id, now=datetime.datetime.now(timezone.utc)):
     db.commit()
     return call_id
 
+def store_recording(call_id, audio_buffer):
+    db = get_db()
+    statement = "UPDATE recordings SET storage_blob = ? WHERE call_id = ?"
+    db.execute(statement, (Binary(audio_buffer), call_id))
+    db.commit()
+
+def read_recording(call_id):
+    db = get_db()
+    statement = "SELECT storage_blob FROM recordings WHERE call_id = ?"
+    result = db.execute(statement, (call_id, )).fetchone()
+    return result[0]

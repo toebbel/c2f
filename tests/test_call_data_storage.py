@@ -1,8 +1,12 @@
 from c2f.call_data_storage import add_initial_call_event, add_call_recording_consent, EVENT_RECORDING_CONSENT, \
-    complete_call, EVENT_CALL_COMPLETED, schedule_callback, get_pending_callbacks, callback_succeeded, callback_failed
+    complete_call, EVENT_CALL_COMPLETED, schedule_callback, get_pending_callbacks, callback_succeeded, callback_failed, \
+    store_recording, read_recording
 from c2f.db import get_db
 from datetime import datetime, timezone
 from datetime import timedelta
+import os
+
+from tests.test_audio_editor import binary_compare
 
 _call_id = "some call id"
 _number = "+46123456789"
@@ -122,3 +126,15 @@ def test_callback_failed__fails_permanent_after_fourth_attempt(app):
         failed = db.execute(statement, (_call_id,)).fetchall()
         assert len(failed) == 1
         assert failed[0][0] is None
+
+def test_store_and_read_recording(app):
+    in_path = os.path.join(os.path.dirname(__file__), 'test-expected-output.mp3')
+    out_path = os.path.join(os.path.dirname(__file__), 'test-actual-database-output.mp3')
+    with app.app_context(), open(in_path, 'rb') as in_file, open(out_path, 'wb') as out_file:
+        add_initial_call_event(_call_id, _number)
+        complete_call(_call_id)
+
+        store_recording(_call_id, in_file.read())
+        buffer = read_recording(_call_id)
+        out_file.write(buffer)
+    assert binary_compare(in_path, out_path)
