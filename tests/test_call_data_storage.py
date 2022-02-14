@@ -45,7 +45,7 @@ def test_complete_call__event_is_inserted(app):
     with app.app_context():
         add_initial_call_event(_call_id, _number)
 
-        complete_call(_call_id, 'storage blob id')
+        complete_call(_call_id)
         stored_event = get_db().execute("SELECT * FROM call_events WHERE event_type = ?",
                                         (EVENT_CALL_COMPLETED,)).fetchall()
         assert len(stored_event) == 1
@@ -53,22 +53,13 @@ def test_complete_call__event_is_inserted(app):
         assert stored_event[0]['owner_number'] == "tel:" + _number
 
 
-def test_complete_call__recording_blob_id_is_stored(app):
-    with app.app_context():
-        add_initial_call_event(_call_id, _number)
-        complete_call(_call_id, 'my storage location')
-        stored_recordings = get_db().execute("SELECT * from recordings WHERE call_id = ?", (_call_id,)).fetchone()
-        assert stored_recordings['storage_blob_id'] == 'my storage location'
-        assert stored_recordings['owner_number'] == "tel:" + _number
-
-
 def test_schedule_and_get_pending_callbacks(app):
     with app.app_context():
         callid2 = "call id 2"
         add_initial_call_event(_call_id, _number)
         add_initial_call_event(callid2, _number)
-        complete_call(_call_id, 'storage blob id')
-        complete_call(callid2, 'storage blob id 2')
+        complete_call(_call_id)
+        complete_call(callid2)
         tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
         yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         schedule_callback(callid2, tomorrow)
@@ -79,13 +70,12 @@ def test_schedule_and_get_pending_callbacks(app):
         assert len(pending) == 1
         assert pending[0]['call_id'] == _call_id
         assert pending[0]['owner_number'] == _number
-        assert pending[0]['storage_blob_id'] == 'storage blob id'
 
 
 def test_get_pending_callbacks__does_not_include_delivered_calls(app):
     with app.app_context():
         add_initial_call_event(_call_id, _number)
-        complete_call(_call_id, 'storage blob id')
+        complete_call(_call_id)
         yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         schedule_callback(_call_id, yesterday)
 
@@ -100,7 +90,7 @@ def test_get_pending_callbacks__does_not_include_delivered_calls(app):
 def test_callback_failed__reschedules_plus_one_day(app):
     with app.app_context():
         add_initial_call_event(_call_id, _number)
-        complete_call(_call_id, 'storage blob id')
+        complete_call(_call_id)
         now = datetime.now(timezone.utc)
         first_scheduled_attempt = now - timedelta(hours=25)
         schedule_callback(_call_id, first_scheduled_attempt)
@@ -120,7 +110,7 @@ def test_callback_failed__reschedules_plus_one_day(app):
 def test_callback_failed__fails_permanent_after_fourth_attempt(app):
     with app.app_context():
         add_initial_call_event(_call_id, _number)
-        complete_call(_call_id, 'storage blob id')
+        complete_call(_call_id)
         callback_failed(_call_id)
         callback_failed(_call_id)
         callback_failed(_call_id)

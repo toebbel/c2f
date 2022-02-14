@@ -1,12 +1,14 @@
+import os
+
 from flask import (
     Blueprint, request, jsonify
 )
 
 from c2f.call_data_storage import add_initial_call_event, add_call_recording_consent, complete_call
 from c2f.fourty_six_elks import (explainer, recording_loop, schedule_playback_explainer, end_call)
+from c2f.fourty_six_elks.client import elk46client
 
 bp = Blueprint('webhooks', __name__, url_prefix='/calls/incoming')
-
 
 @bp.route('/initiate', methods=['POST'])
 def initiate_incoming_call():
@@ -64,6 +66,7 @@ def incoming_recording_complete():
     call_id = data['callid']
     completed = data['created']
     wav_url = data['wav']
+    wav_file = elk46Client.download_recording(elk46Client)
     # TODO download, convert to mp3 and store the file
     # TODO cut the wav file so that intro and outro are not included
     complete_call(call_id, wav_url)

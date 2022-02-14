@@ -48,17 +48,16 @@ def add_call_recording_consent(call_id, now=datetime.datetime.now(timezone.utc))
     return result
 
 
-def complete_call(call_id, recording_storage_id, now=datetime.datetime.now(timezone.utc)):
+def complete_call(call_id, now=datetime.datetime.now(timezone.utc)):
     """marks the call as completed in the database"""
     db = get_db()
     result = _add_call_event(db, call_id, EVENT_CALL_COMPLETED, now)
-    statement = "INSERT INTO recordings  (call_id, created_at, storage_blob_id, owner_number) " \
-                "SELECT :call_id as column, :created_at as column, :storage_blob_id as column, events.owner_number " \
+    statement = "INSERT INTO recordings  (call_id, created_at, owner_number) " \
+                "SELECT :call_id as column, :created_at as column, events.owner_number " \
                 "FROM call_events events WHERE call_id = :call_id AND event_type = :init_event_type"
     params = {
         'call_id': call_id,
         'created_at': now,
-        'storage_blob_id': recording_storage_id,
         'init_event_type': EVENT_CALL_INITIALIZED,
     }
     db.execute(statement, params)
@@ -76,7 +75,7 @@ def schedule_callback(call_id, scheduled_date):
 
 def get_pending_callbacks(now=datetime.datetime.now(timezone.utc)):
     """returns a list of callbacks that are scheduled now"""
-    statement = "SELECT call_id, owner_number, storage_blob_id from recordings " \
+    statement = "SELECT call_id, owner_number from recordings " \
                 "WHERE scheduled_for < :now AND delivered = false"
     db = get_db()
     result = db.execute(statement, {'now': now}).fetchall()
@@ -118,3 +117,4 @@ def callback_failed(call_id, now=datetime.datetime.now(timezone.utc)):
         db.execute(statement, params)
     db.commit()
     return call_id
+

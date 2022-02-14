@@ -2,10 +2,10 @@ from c2f.audio_editor import convert_and_clip
 
 def test_convert_and_clip():
     clip_off = 2500
-    convert_and_clip('wav-test-input.wav', 'test-actual-output.mp3', clip_off)
+    convert_and_clip('tests/wav-test-input.wav', 'tests/test-actual-output.mp3', clip_off)
     # MP3s could differ on byte comparison when they were decoded on different machines (of ffmpeg versions)
     # If the test proves to be flaky, it should be removed.
-    assert _do_cmp('test-actual-output.mp3', 'test-expected-output.mp3')
+    assert _do_cmp('tests/test-actual-output.mp3', 'tests/test-expected-output.mp3')
 
 
 # taken from here: https://codereview.stackexchange.com/a/171014
